@@ -21,7 +21,7 @@ def create_connection():
         connection = pymysql.connect(
             host="localhost",
             user="root",
-            password="adv15227",
+            password="Godbless@8",
             database="HealthInsuranceDB"
         )
         return connection
@@ -45,6 +45,7 @@ def set_page_style(background_image_path):
         background-position: center;
         background-attachment: fixed;
         color: #333;
+        height: 5500px;
     }}
     
     /* Style adjustments for various elements */
@@ -85,10 +86,33 @@ def set_page_style(background_image_path):
         color: #004466;
     }}
 
-    .css-1y4p8pa {{
+    /* Add semi-transparent background to main content */
+    .block-container {{
+        background-color: rgba(255, 255, 255, 0.85);  /* 0.85 is the opacity - adjust as needed */
         padding: 2rem;
-        background-color: rgba(255, 255, 255, 0.8);
         border-radius: 10px;
+        min-height: 100vh;
+        height: auto;
+        display: flex; /* Use flexbox for alignment */
+        flex-direction: column; /* Arrange elements vertically */
+        justify-content: flex-start; /* Align content to start */
+    }}
+
+    /* Make sure elements inside maintain good contrast */
+    .block-container * {{
+        color: #333;
+    }}
+
+    /* Ensure header text remains visible */
+    .block-container h1, .block-container h2, .block-container h3 {{
+        color: #004466;
+    }}
+
+    
+
+    /* Style success/error messages */
+    .stSuccess, .stError {{
+        background-color: rgba(255, 255, 255, 0.9);
     }}
     </style>
     """
@@ -96,9 +120,9 @@ def set_page_style(background_image_path):
 
 # Apply the appropriate background based on login state
 if st.session_state.get("logged_in", False):
-    set_page_style("C:/Users/girid_jmxu80e/Downloads/Health Insurance Management System Project/LoginPageBackground.png")  # Post-login background
+    set_page_style("HomePageBackground.png")  # Post-login background
 else:
-    set_page_style("C:/Users/girid_jmxu80e/Downloads/Health Insurance Management System Project/HomePageBackground.png")   # Login/registration background
+    set_page_style("LoginPageBackground.png")   # Login/registration background
 
 def register_user(username, password):
     conn = create_connection()
@@ -158,14 +182,14 @@ def view_policy_holders():
     return policy_holders
 
 # Add new policy
-def add_policy(policy_name, premium, coverage_amount):
+def add_policy(policy_name, policy_details, premium):
     conn = create_connection()
     if conn is None:
         return
     
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO policies (policy_name, premium, coverage_amount) VALUES (%s, %s, %s)",
-                   (policy_name, premium, coverage_amount))
+    cursor.execute("INSERT INTO policies (policy_name, policy_details, premium) VALUES (%s, %s, %s)",
+                   (policy_name, policy_details, premium))
     conn.commit()
     conn.close()
 
@@ -239,7 +263,7 @@ def buy_policy(user_id, policy_id, name, age, contact, address):
         
           # Fetch the premium amount for the selected policy
         cursor.execute("""
-            SELECT premium_amount FROM policies WHERE policy_id = %s
+            SELECT premium FROM policies WHERE policy_id = %s
         """, (policy_id,))
         premium_amount = cursor.fetchone()[0]
 
@@ -511,7 +535,8 @@ if not st.session_state.logged_in:
         st.header("Login")
         login_username = st.text_input("Username", key="login_username_unique")
         login_password = st.text_input("Password", type="password", key="login_password_unique")
-        col1, col2 = st.columns(2)
+        container = st.container()
+        col1, col2 = container.columns([5, 1.5], gap="large")
 
         with col1:
             if st.button("Login", key="login_button_unique"):
@@ -558,10 +583,10 @@ if st.session_state.logged_in:
         new_policy_name = st.text_input("Policy Name")
         new_policy_details = st.text_area("Details")
         new_policy_premium = st.number_input("Premium Amount", min_value=0.0, step=0.01)
-        coverage_amount = st.number_input("Coverage Amount", min_value=0.0, step=0.01)
+        #coverage_amount = st.number_input("Coverage Amount", min_value=0.0, step=0.01)
         
         if st.button("Add Policy"):
-            add_policy(new_policy_name, new_policy_premium, coverage_amount)
+            add_policy(new_policy_name, new_policy_details, new_policy_premium)
             st.success("Policy added successfully")
             st.rerun()
             
