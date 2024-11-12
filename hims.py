@@ -21,7 +21,7 @@ def create_connection():
         connection = pymysql.connect(
             host="localhost",
             user="root",
-            password="Godbless@8",
+            password="pwd",
             database="HealthInsuranceDB"
         )
         return connection
